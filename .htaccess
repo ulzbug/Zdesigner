@@ -1,0 +1,4 @@
+RewriteEngine on
+
+
+RewriteRule     ^schema-(\d+)$          index.php?schema=$1  [L]
