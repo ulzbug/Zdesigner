@@ -253,7 +253,13 @@ dbd.objects.Schema.prototype.initCanvas = function()
     
     $(window).resize(function(){
         dbd.schema.canvas.width = window.innerWidth;
-        dbd.schema.canvas.height = window.innerHeight;
+		dbd.schema.canvas.height = window.innerHeight;
+		$(dbd.schema.canvas).width(window.innerWidth);
+		$(dbd.schema.canvas).height(window.innerHeight);
+
+		$('#canvas-grid').width(this.width);
+		$('#canvas-grid').height(this.height);
+
         dbd.schema.links.draw();
     });
 }
