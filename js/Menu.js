@@ -230,12 +230,12 @@ dbd.Menu = {
                         dbd.schema.save();
                         break;
                     case 'f':
-                        event.preventDefault();
-                        alert('ctrl-f');
+                        //event.preventDefault();
+                        //alert('ctrl-f');
                         break;
                     case 'g':
-                        event.preventDefault();
-                        alert('ctrl-g');
+                        //event.preventDefault();
+                        //alert('ctrl-g');
                         break;
                 }
             }
