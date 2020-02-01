@@ -190,6 +190,8 @@ dbd.objects.Connexion.importTables = function(e)
             {
 				var table = new dbd.objects.Table();
 				table.name = table_name;
+
+				dbd.schema.tables.addChild(table);
 				
 				for(var i = 0; i < ret.columns[table_name].length; i++)
 				{
@@ -238,10 +240,8 @@ dbd.objects.Connexion.importTables = function(e)
 					column.table = table;
 					
 					table.addChild(column);
+					table.draw();
 				}
-				
-				dbd.schema.tables.addChild(table);
-				table.draw();
 			}
 			
             window_import_table.close();

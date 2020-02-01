@@ -37,7 +37,8 @@ try
     {
         $columns[$row['id']] = $row;
     }
-    
+	
+	$new_columns_id = [];
     foreach($schema->tables->children AS $table)
     {
         if(substr($table->id, 0, 10) == 'table-new-')
@@ -56,12 +57,23 @@ try
             unset($tables[$table_id]);
         }
         
-        $order_by = 0;
+		$order_by = 0;
+		$unknow_foreign_key = false;
         foreach($table->children AS $column)
         {
             $order_by ++;
-            
-            $foreign_key = (int)str_replace('column-', '', $column->foreign_key);
+			
+			if(substr($column->foreign_key, 0, 11) == 'column-new-') {
+				if($new_columns_id[$column->foreign_key]) {
+					$foreign_key = $new_columns_id[$column->foreign_key];
+					$return['updates'][] = array('type' => 'column', 'id' => $column->id, 'fields' => array('foreign_key' => 'column-'.$foreign_key));
+				} else {
+					$foreign_key = 0;
+					$unknow_foreign_key = true;
+				}
+			} else {
+				$foreign_key = (int)str_replace('column-', '', $column->foreign_key);
+			}
             if(substr($column->id, 0, 11) == 'column-new-')
             {
                 Db::get()->sql_query("INSERT INTO ".Db::tn('columns')." (table_id, name, type, size, primary_key, default_value, allow_null, auto_increment, attributes, foreign_key, order_by, comment)
@@ -69,7 +81,9 @@ try
                 '".(int)$column->allow_null."', '".(int)$column->auto_increment."', '".Db::pr($column->attributes)."', '".(int)$foreign_key."', ".(int)$order_by.", '".Db::pr($column->comment)."')");
                 $column_id = Db::get()->insert_id();
                 
-                $return['updates'][] = array('type' => 'column', 'id' => $column->id, 'fields' => array('id' => 'column-'.$column_id));
+				$return['updates'][] = array('type' => 'column', 'id' => $column->id, 'fields' => array('id' => 'column-'.$column_id));
+				
+				$new_columns_id[$column->id] = $column_id;
             }
             else
             {
@@ -91,7 +105,30 @@ try
                 unset($columns[$column_id]);
             }
         }
-    }
+	}
+	
+	if($unknow_foreign_key) {
+
+        foreach($table->children AS $column)
+        {
+			if(substr($column->foreign_key, 0, 11) == 'column-new-') {
+				if(substr($column->id, 0, 11) == 'column-new-')
+				{
+					$column_id = (int)$new_columns_id[$column->id];
+				}
+				else
+				{
+					$column_id = (int)str_replace('column-', '', $column->id);
+				}
+
+				Db::get()->sql_query("UPDATE ".Db::tn('columns')." 
+				SET foreign_key = '".(int)$new_columns_id[$column->foreign_key]."'
+				WHERE id = ".(int)$column_id);
+
+				$return['updates'][] = array('type' => 'column', 'id' => 'column-'.$column_id, 'fields' => array('foreign_key' => 'column-'.$new_columns_id[$column->foreign_key]));
+			}
+        }
+	}
 
     foreach($columns AS $column_id => $column)
     {
