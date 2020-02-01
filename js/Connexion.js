@@ -210,12 +210,14 @@ dbd.objects.Connexion.importTables = function(e)
 					colonneType = colonneType.replace(' unsigned', '');
 
 					var colonneTypeId = null;
-					for( var t in statics.schemas_types[dbd.schema.type].columns_type)
-					{
-						var type = statics.schemas_types[dbd.schema.type].columns_type[t].column_type_name;
-						if(type.toLowerCase() == colonneType.toLowerCase())
+					if(statics.schemas_types[dbd.schema.type]) {
+						for( var t in statics.schemas_types[dbd.schema.type].columns_type)
 						{
-							colonneTypeId = t;
+							var type = statics.schemas_types[dbd.schema.type].columns_type[t].column_type_name;
+							if(type.toLowerCase() == colonneType.toLowerCase())
+							{
+								colonneTypeId = t;
+							}
 						}
 					}
 					
